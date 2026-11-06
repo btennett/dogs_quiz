@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dog Breeds Quiz</title>
+
+<meta name="description" content="12 multiple-choice questions: name the breed from the photo. Every game is different.">
+<meta name="theme-color" content="#1F4E8C">
+
+<!-- Link previews (WhatsApp, iMessage, Facebook, Slack, X…)
+     Set for https://btennett.github.io/dogs_quiz/  — change og:url and the image addresses
+     if you host this at a different address.
+     og:image MUST be a full https:// address or WhatsApp won't show it.
+     Upload preview.png (1200×630), icon-512.png, apple-touch-icon.png and favicon-32.png alongside this file. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dog Breeds Quiz">
+<meta property="og:title" content="Dog Breeds Quiz">
+<meta property="og:description" content="12 multiple-choice questions: name the breed from the photo. Every game is different.">
+<meta property="og:url" content="https://btennett.github.io/dogs_quiz/">
+<meta property="og:image" content="https://btennett.github.io/dogs_quiz/preview.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Dog Breeds Quiz: a dog photo with five breed names, the correct one ticked.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Dog Breeds Quiz">
+<meta name="twitter:description" content="12 multiple-choice questions: name the breed from the photo. Every game is different.">
+<meta name="twitter:image" content="https://btennett.github.io/dogs_quiz/preview.png">
+
+<!-- Browser tab and home-screen icons -->
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<!-- Dog photos are loaded from Wikimedia Commons -->
+<link rel="preconnect" href="https://commons.wikimedia.org">
+<link rel="preconnect" href="https://upload.wikimedia.org">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}
+img{max-width:100%}
+[hidden]{display:none!important}
+:root{
+  --bg:#ECEFEA; --surface:#FFFFFF; --ink:#18201B; --muted:#5C665F; --line:#D2D9D2;
+  --accent:#1F4E8C; --good:#1D7448; --bad:#B0281F; --good-soft:#E2F1E8; --bad-soft:#FAE6E3;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-head:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111613; --surface:#1A221D; --ink:#E5ECE6; --muted:#98A49B; --line:#2C3830;
+  --accent:#8DB4F0; --good:#4CC48A; --bad:#F27C70; --good-soft:#163024; --bad-soft:#3A1E1C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111613; --surface:#1A221D; --ink:#E5ECE6; --muted:#98A49B; --line:#2C3830;
+  --accent:#8DB4F0; --good:#4CC48A; --bad:#F27C70; --good-soft:#163024; --bad-soft:#3A1E1C; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-display);-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit}
+.app{height:100%;max-width:560px;margin:0 auto;display:grid;grid-template-rows:auto 1fr auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+.top{padding-block:14px 10px;display:flex;flex-direction:column;gap:10px}
+.top-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand{font-weight:800;font-size:1.15rem;letter-spacing:-.01em;margin:0}
+.brand em{font-style:normal;color:var(--accent)}
+.score{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.score b{color:var(--ink);font-size:1rem}
+.dots{display:grid;gap:5px;list-style:none;margin:0;padding:0}
+.dots li{height:6px;border-radius:3px;background:var(--line)}
+.dots li.now{background:var(--accent)} .dots li.ok{background:var(--good)} .dots li.no{background:var(--bad)}
+
+.stage{overflow-y:auto;min-height:0;padding-block:6px 14px;overscroll-behavior:contain}
+.card{display:flex;flex-direction:column;gap:12px}
+.meta{font-family:var(--f-mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.question{font-family:var(--f-head);font-weight:600;font-size:clamp(1.25rem,5.2vw,1.55rem);line-height:1.3;margin:0;text-wrap:balance}
+
+.photo-box{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px}
+.photo{display:block;width:100%;aspect-ratio:3/2;max-height:40vh;object-fit:contain;border-radius:8px;background:var(--bg)}
+.photo-msg{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.review .thumb{width:52px;height:40px;object-fit:cover;border-radius:6px;background:var(--bg);vertical-align:middle}
+.options{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.opt{width:100%;min-height:48px;display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:12px;
+  text-align:left;padding:8px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);
+  font-size:1rem;font-weight:500;cursor:pointer;transition:border-color .15s,background .15s,transform .08s}
+.opt:active{transform:scale(.985)}
+.opt:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (hover:hover){.opt:not([disabled]):hover{border-color:var(--accent)}}
+.opt .key{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-family:var(--f-mono);font-size:.85rem;
+  background:var(--bg);color:var(--muted)}
+.opt .txt{min-width:0;line-height:1.3}
+.opt .res{font-weight:800;font-size:1.05rem}
+.opt[disabled]{cursor:default}
+.opt.correct{border-color:var(--good);background:var(--good-soft)}
+.opt.correct .key{background:var(--good);color:var(--surface)}
+.opt.correct .res{color:var(--good)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .key{background:var(--bad);color:var(--surface)}
+.opt.wrong .res{color:var(--bad)}
+.opt.faded{opacity:.5}
+
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.fact .verdict{font-weight:800;font-size:1.05rem;margin:0}
+.fact .verdict.ok{color:var(--good)} .fact .verdict.no{color:var(--bad)}
+.fact p{margin:0;font-family:var(--f-head);font-size:1rem;line-height:1.55}
+.fact .credit{font-family:var(--f-mono);font-size:.7rem;color:var(--muted)}
+.fact .credit a{color:inherit}
+
+.over{display:flex;flex-direction:column;gap:16px}
+.final{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 18px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.final .big{font-weight:800;font-size:3.2rem;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin:0}
+.final p{margin:0}
+.final .best{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.review-title{font-size:.8rem;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:6px 0 0;font-weight:500}
+.review{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.review li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:auto 52px 1fr;align-items:center;gap:12px}
+.review .mark{font-weight:800;font-size:1.05rem;line-height:1.3}
+.review .mark.ok{color:var(--good)} .review .mark.no{color:var(--bad)}
+.review .q{font-family:var(--f-head);font-size:.95rem;line-height:1.35;min-width:0}
+.review .ans{font-size:.9rem;color:var(--muted)}
+.review .ans b{color:var(--ink);font-weight:600}
+
+.actions{padding-block:10px 14px;border-top:1px solid var(--line);background:var(--bg)}
+.btn{width:100%;border:none;border-radius:12px;min-height:58px;font-weight:700;font-size:1.1rem;cursor:pointer;
+  background:var(--accent);color:var(--surface);transition:transform .08s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.btn[disabled]{background:var(--line);color:var(--muted);cursor:default;transform:none}
+.foot{font-family:var(--f-mono);font-size:.68rem;color:var(--muted);text-align:center;margin:8px 0 0}
+.foot a{color:inherit}
+.error{background:var(--bad-soft);border:1px solid var(--bad);border-radius:12px;padding:14px 16px;font-size:.92rem}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){.fact{animation:rise .25s ease-out}@keyframes rise{from{transform:translateY(6px);opacity:.4}to{transform:none;opacity:1}}}
+</style>
+</head>
+<body>
+<!--
+================================================================
+  QUIZ CONTENT — edit only this block to make a new version.
+  ----------------------------------------------------------------
+  settings.questionsPerGame   : how many questions each game draws
+  settings.optionsPerQuestion : choices shown per question (3 to 6; 5 fits best on a phone)
+  breeds[] : one object per breed
+    breed : the name shown as an answer choice
+    group : shown above the photo. Wrong answers are drawn from other
+            breeds in the same group (each group needs 5 or more).
+    photo : the photo's file name on Wikimedia Commons, without "File:"
+            (https://commons.wikimedia.org/wiki/File:<name>). Use landscape
+            photos (wider than tall) so they fill the frame on phones.
+    fact  : one or two sentences shown after answering (optional)
+  Facts were checked against each breed's English Wikipedia article.
+  Breeds that are nearly impossible to tell apart in a photo are left out
+  on purpose, so every photo has one fair answer: Alaskan Malamute (Husky),
+  Lhasa Apso (Shih Tzu), Toy and Miniature Poodle (Poodle), Norfolk and
+  Norwich Terrier, Cardigan Corgi (Pembroke).
+  Photos: Wikimedia Commons. Each is credited via a link to its Commons
+  page (author and licence) shown under the fact after answering.
+================================================================
+-->
+<script type="application/json" id="quiz-data">
+{
+ "title": "Dog Breeds Quiz",
+ "version": "2.0 · November 2026",
+ "settings": {
+  "questionsPerGame": 12,
+  "optionsPerQuestion": 5
+ },
+ "breeds": [
+  {"breed": "Labrador Retriever", "group": "Sporting", "photo": "Labrador on Quantock (2175262184).jpg", "fact": "Despite its name, it was developed in Britain from St. John's water dogs brought over from Newfoundland. The name comes from the Labrador region of that colony."},
+  {"breed": "Golden Retriever", "group": "Sporting", "photo": "Golden Retriever Dukedestiny01 drvd.jpg", "fact": "Developed in Scotland in the 1800s by Sir Dudley Marjoribanks, later Lord Tweedmouth, on his Guisachan estate."},
+  {"breed": "Cocker Spaniel", "group": "Sporting", "photo": "Gessa d'Aran Copo de Nieve- arancio roano- prop.Kalesa.jpg", "fact": "'Cocker' comes from the woodcock, the bird it was used to flush. The English Cocker has won Best in Show at Crufts more often than any other breed."},
+  {"breed": "English Springer Spaniel", "group": "Sporting", "photo": "Springer Spaniel Wide Shot.jpg", "fact": "Springer spaniels would 'spring' game birds into the air for hunters. The Kennel Club recognised it as a separate breed in 1902."},
+  {"breed": "Irish Setter", "group": "Sporting", "photo": "Can Setter dog GFDL.jpg", "fact": "An Irish gundog with a long, silky coat that is red or chestnut."},
+  {"breed": "German Shorthaired Pointer", "group": "Sporting", "photo": "Etzel vom Thüringer Zipfel.jpg", "fact": "A pointing dog that originated in Germany in the 1800s, bred to find game and point it out for the hunter."},
+  {"breed": "Vizsla", "group": "Sporting", "photo": "Magyar Vizsla.jpg", "fact": "A Hungarian hunting dog that tracks, points and retrieves, even from water. Vizslas love being near their owners and often sleep in their beds."},
+  {"breed": "Brittany", "group": "Sporting", "photo": "Zuri txakurra 1 (cropped).JPG", "fact": "From the Brittany region of north-western France. Its tail may be short, completely absent, or of normal length."},
+  {"breed": "Chesapeake Bay Retriever", "group": "Sporting", "photo": "CH Chesapeake.jpg", "fact": "Market hunters used it to retrieve ducks from the Chesapeake Bay. Its wavy coat is waterproof and slightly oily, and it became Maryland's official dog in 1964."},
+
+  {"breed": "Beagle", "group": "Hound", "photo": "Beagle 600.jpg", "fact": "The U.S. Department of Agriculture's 'Beagle Brigade' uses beagles to sniff out food in luggage entering the country."},
+  {"breed": "Basset Hound", "group": "Hound", "photo": "BassetHound profil.jpg", "fact": "'Bas' is French for 'low'. Its long ears help stir up ground scent, and its nose is second only to the Bloodhound's."},
+  {"breed": "Bloodhound", "group": "Hound", "photo": "Bloodhound Erland22.jpg", "fact": "Police around the world use Bloodhounds to track escaped prisoners, missing people and lost pets."},
+  {"breed": "Dachshund", "group": "Hound", "photo": "닥스훈트(단모종) (Dachshund (Short)).jpg", "fact": "The name is German for 'badger dog': it was bred to scent, chase and flush out badgers and other burrowing animals."},
+  {"breed": "Afghan Hound", "group": "Hound", "photo": "Afghan Hound 2.JPG", "fact": "The breed comes from the cold mountains of Afghanistan, and its long coat developed as protection from the harsh mountain climate."},
+  {"breed": "Whippet", "group": "Hound", "photo": "Whippet 2018 6.jpg", "fact": "Can reach 56 km/h (35 mph). Coal miners in Lancashire and Yorkshire called it 'the poor man's racehorse'."},
+  {"breed": "Saluki", "group": "Hound", "photo": "Red Smooth Saluki.jpg", "fact": "Held in high regard across the Middle East, where it hunted gazelle, hare and fox."},
+  {"breed": "Rhodesian Ridgeback", "group": "Hound", "photo": "Big rhodesian male IMG 6830.JPG", "fact": "Bred in southern Africa, where these dogs were used to hold lions at bay. Look for the ridge of hair along its back that grows the opposite way."},
+  {"breed": "Irish Wolfhound", "group": "Hound", "photo": "(2) Irish Wolfhound 4.jpg", "fact": "One of the largest of all dog breeds, once used as a hunting dog by the Gaels."},
+  {"breed": "Borzoi", "group": "Hound", "photo": "Chart rosyjski borzoj rybnik-kamien pl.jpg", "fact": "Used in Russia to hunt wolves. Its name comes from an old Russian word meaning 'fast', and at one time Borzois could not be bought, only received as gifts from the Tsar."},
+  {"breed": "Basenji", "group": "Hound", "photo": "Gaia Basenji.jpg", "fact": "From Central Africa. It doesn't bark like most dogs; instead it makes an unusual yodel-like sound."},
+
+  {"breed": "Siberian Husky", "group": "Working", "photo": "Husky L.jpg", "fact": "First developed by the Chukchi people of Siberia to pull sleds. It became famous after the 1925 'serum run' carried diphtheria medicine to Nome, Alaska."},
+  {"breed": "Boxer", "group": "Working", "photo": "Male fawn Boxer undocked.jpg", "fact": "Developed in Germany. The popular idea that it's named for 'boxing' with its front paws is considered the least likely explanation."},
+  {"breed": "Rottweiler", "group": "Working", "photo": "Rottweiler standing facing left.jpg", "fact": "Named after the German town of Rottweil, where these 'butcher's dogs' pulled carts of meat to market."},
+  {"breed": "Doberman Pinscher", "group": "Working", "photo": "Dobermann handling.jpg", "fact": "Bred in Germany around 1890 by Louis Dobermann, a tax collector who also ran a dog pound."},
+  {"breed": "Great Dane", "group": "Working", "photo": "Greatdane.jpg", "fact": "Despite the name, it's a German breed with no known link to Denmark. It's one of the two largest dog breeds in the world."},
+  {"breed": "Saint Bernard", "group": "Working", "photo": "Hummel Vedor vd Robandahoeve.jpg", "fact": "Bred for rescue work by the hospice at the Great St Bernard Pass in the Alps. One dog, Barry, reportedly saved between 40 and 100 lives."},
+  {"breed": "Bernese Mountain Dog", "group": "Working", "photo": "3-BerneseMountainDogInGrass.jpg", "fact": "From the canton of Bern in the Swiss Alps, where farmers used it to pull carts of milk and cheese."},
+  {"breed": "Newfoundland", "group": "Working", "photo": "Ohle01.jpg", "fact": "Webbed paws and a huge lung capacity make it a powerful swimmer, famous for water rescue."},
+  {"breed": "Samoyed", "group": "Working", "photo": "Samoyed dog two year old female dllu.jpg", "fact": "Named after the Samoyedic peoples of northern Siberia. Its cheerful expression has earned it the nickname 'smiley dog'."},
+  {"breed": "Akita", "group": "Working", "photo": "Akita hiking in Shpella e Pëllumbasit.JPG", "fact": "From the mountains of northern Japan. The story of Hachikō, who went to the station every day for nine years after his owner died, made the breed famous worldwide."},
+  {"breed": "Great Pyrenees", "group": "Working", "photo": "Great Pyrenees Mountain Dog 2.png", "fact": "Guarded flocks from wolves and bears in the Pyrenees mountains between France and Spain, sometimes wearing iron collars studded with nails."},
+  {"breed": "Komondor", "group": "Working", "photo": "Komondor male 03.jpg", "fact": "A Hungarian livestock guardian. Its coat naturally forms long cords, which take about two years to develop."},
+
+  {"breed": "German Shepherd", "group": "Herding", "photo": "German Shepherd - DSC 0346 (10096362833).jpg", "fact": "Developed in Germany from 1899 by Max von Stephanitz. Film star Rin Tin Tin helped make the breed popular."},
+  {"breed": "Border Collie", "group": "Herding", "photo": "Border Collie 600.jpg", "fact": "From the border region between England and Scotland. It has been called the most intelligent dog breed."},
+  {"breed": "Australian Shepherd", "group": "Herding", "photo": "Australian Shepherd red bi.JPG", "fact": "Despite the name, it was developed in California in the 1800s."},
+  {"breed": "Pembroke Welsh Corgi", "group": "Herding", "photo": "Welsh Pembroke Corgi.jpg", "fact": "Originally a cattle-herding dog. Queen Elizabeth II owned more than 30 corgis during her reign."},
+  {"breed": "Shetland Sheepdog", "group": "Herding", "photo": "Shetland Sheepdog sable.jpg", "fact": "A herding dog from the Shetland Islands of Scotland that looks like a miniature Rough Collie."},
+  {"breed": "Old English Sheepdog", "group": "Herding", "photo": "Old English Sheepdog (side).jpg", "fact": "Nicknamed 'bobtail' after the old practice of docking its tail. Its long, shaggy coat can cover its face and eyes."},
+  {"breed": "Belgian Malinois", "group": "Herding", "photo": "Malinois Shepherd3.JPG", "fact": "Named after the Mechelen region of Belgium (Malines in French). It's popular with police, customs and military units."},
+  {"breed": "Briard", "group": "Herding", "photo": "Briard fauve.JPG", "fact": "A French shepherd dog used both to herd sheep and to defend them. Unusually, it has double dewclaws on its hind legs."},
+  {"breed": "Australian Cattle Dog", "group": "Herding", "photo": "ACD-blue-spud.jpg", "fact": "Bred to move reluctant cattle by nipping at their heels, which is why it's nicknamed the 'Blue Heeler' or 'Red Heeler'."},
+
+  {"breed": "Yorkshire Terrier", "group": "Terrier", "photo": "4 year old Yorkie, Leo.jpg", "fact": "Originated in Yorkshire in the 1800s, bred mostly by workers in the cotton and wool mills."},
+  {"breed": "West Highland White Terrier", "group": "Terrier", "photo": "West Highland White Terrier Krakow.jpg", "fact": "The story goes that a reddish terrier was mistaken for a fox and shot, so Edward Malcolm of Poltalloch set out to breed white ones."},
+  {"breed": "Scottish Terrier", "group": "Terrier", "photo": "Scottish Koira 2013.JPG", "fact": "President Franklin D. Roosevelt's Scottie, Fala, stands beside him in his memorial statue in Washington, D.C."},
+  {"breed": "Jack Russell Terrier", "group": "Terrier", "photo": "Gizmo the Jack Russell.jpg", "fact": "Named after the Reverend John 'Jack' Russell, a fox-hunting parson from Devon, England."},
+  {"breed": "Airedale Terrier", "group": "Terrier", "photo": "Airedale-terrier-charles14m.jpg", "fact": "Called the 'King of Terriers' because it is the largest of the terrier breeds."},
+  {"breed": "Bedlington Terrier", "group": "Terrier", "photo": "Boutchie apres championnat 004.JPG", "fact": "Named after the mining town of Bedlington in Northumberland, England, and often said to look like a lamb."},
+  {"breed": "Cairn Terrier", "group": "Terrier", "photo": "Cairn-Terrier-Garten1.jpg", "fact": "Named after cairns, the piles of stones where it flushed out vermin."},
+  {"breed": "Miniature Schnauzer", "group": "Terrier", "photo": "Miniature Schnauzer salt & pepper (cropped).jpg", "fact": "A small German breed. 'Schnauze' is German for 'snout'."},
+  {"breed": "Soft Coated Wheaten Terrier", "group": "Terrier", "photo": "Soft-Coated Wheaten Terrier.jpg", "fact": "Bred in Ireland for over 200 years as an all-purpose farm dog, and named for its silky, wheat-coloured coat."},
+
+  {"breed": "Chihuahua", "group": "Toy", "photo": "Chihuahua-Dog.JPG", "fact": "The smallest recognised dog breed in the world. Spanish explorers reportedly found tiny dogs in the part of Mexico later called Chihuahua."},
+  {"breed": "Pomeranian", "group": "Toy", "photo": "Pomeranian.JPG", "fact": "When Queen Victoria showed her small Pomeranian, Marco, in 1891, smaller Poms became instantly popular. The breed reportedly shrank by half during her lifetime."},
+  {"breed": "Pug", "group": "Toy", "photo": "Mops oct09 cropped2.jpg", "fact": "Brought from China to Europe in the 1500s. A pug named Pompey reportedly saved a Prince of Orange from assassins in 1572."},
+  {"breed": "Shih Tzu", "group": "Toy", "photo": "Shih Tzu in Tallinn.JPG", "fact": "Its name comes from the Mandarin word for 'lion'. The breed originated in Tibet and was a favourite of Chinese royalty."},
+  {"breed": "Papillon", "group": "Toy", "photo": "Outdoor Continental Toy Spaniel Papillon.jpeg", "fact": "'Papillon' means 'butterfly', after its upright ears. The drop-eared version is called the Phalène, or 'moth'."},
+  {"breed": "Pekingese", "group": "Toy", "photo": "1AKC Pekingese Dog Show 2011.jpg", "fact": "At one time it could only be owned by members of the Chinese Imperial Palace."},
+
+  {"breed": "Dalmatian", "group": "Non-Sporting", "photo": "Female dalmatian head shot.jpg", "fact": "Puppies are born with plain white coats, and the first spots usually appear within about ten days. Dalmatians were once firehouse mascots."},
+  {"breed": "Poodle", "group": "Non-Sporting", "photo": "Full attention (8067543690).jpg", "fact": "Probably originated in Germany as a water dog. Its name comes from a Low German word meaning 'to splash', and its fancy clip began as a way to help it swim."},
+  {"breed": "Bulldog", "group": "Non-Sporting", "photo": "Whitebulldog.jpg", "fact": "Descended from the Old English Bulldog, which was used for bull-baiting. To many it's a national icon, symbolising pluck and determination."},
+  {"breed": "French Bulldog", "group": "Non-Sporting", "photo": "2008-07-28 Dog at Frolick Field.jpg", "fact": "Known for its 'bat ears'. In 2023 it overtook the Labrador as America's most popular breed in the AKC rankings."},
+  {"breed": "Boston Terrier", "group": "Non-Sporting", "photo": "Boston-terrier-carlos-de.JPG", "fact": "Nicknamed 'the American Gentleman' for its tuxedo-like markings, it's one of only a few breeds that originated in the U.S."},
+  {"breed": "Chow Chow", "group": "Non-Sporting", "photo": "IMG 0383 - Chow Chow, side.jpg", "fact": "An ancient breed from China, famous for its purple or blue-black tongue."},
+  {"breed": "Shiba Inu", "group": "Non-Sporting", "photo": "Taka Shiba.jpg", "fact": "The smallest of Japan's six native breeds. A Shiba named Kabosu is the face of the 'Doge' meme."},
+  {"breed": "Bichon Frise", "group": "Non-Sporting", "photo": "Bichon Frisé - studdogbichon.jpg", "fact": "Its coat is always pure white and curls in loose spirals. Bichons were favourites of European royal courts from the 1200s."},
+  {"breed": "Keeshond", "group": "Non-Sporting", "photo": "Keeshond 2.JPG", "fact": "Once called the Dutch Barge Dog. It was the symbol of the Dutch Patriot faction in the 1700s and is named after the Patriot Cornelis 'Kees' de Gyselaer."},
+  {"breed": "Schipperke", "group": "Non-Sporting", "photo": "Schipperke0001.jpg", "fact": "A Belgian breed from Flanders. Its name is often said to mean 'little captain', though it may mean 'little shepherd'."}
+ ]
+}
+</script>
+
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <h1 class="brand"><em>Dog Breeds</em> Quiz</h1>
+      <div class="score" id="scoreBox"></div>
+    </div>
+    <ol class="dots" id="dots" aria-hidden="true"></ol>
+  </header>
+
+  <main class="stage" id="stage">
+    <section class="card" id="play">
+      <div class="meta" id="cat"></div>
+      <h2 class="question" id="question"></h2>
+      <div class="photo-box"><img class="photo" id="photo" alt=""><div class="photo-msg" id="photoMsg" hidden></div></div>
+      <ol class="options" id="options"></ol>
+      <div class="fact" id="fact" hidden>
+        <p class="verdict" id="verdict"></p>
+        <p id="factText"></p>
+        <p class="credit"><a id="credit" href="#" target="_blank" rel="noopener">Photo: Wikimedia Commons (author and licence)</a></p>
+      </div>
+    </section>
+
+    <section class="over" id="over" hidden>
+      <div class="final">
+        <p class="big" id="finalScore"></p>
+        <p id="finalMsg"></p>
+        <p class="best" id="best"></p>
+      </div>
+      <h2 class="review-title">Your answers</h2>
+      <ol class="review" id="review"></ol>
+    </section>
+  </main>
+
+  <footer class="actions">
+    <button class="btn" id="mainBtn" type="button" disabled>Pick an answer</button>
+    <p class="foot" id="foot"></p>
+  </footer>
+  <div class="sr" aria-live="polite" id="live"></div>
+</div>
+
+<script>
+// ---------- Load and check the content ----------
+const $ = id => document.getElementById(id);
+const KEYS = "ABCDEF";
+let DATA, ITEMS = [], PER = 12, NOPT = 5;
+const shuffle = a => { a = [...a]; for (let k = a.length - 1; k > 0; k--) { const j = Math.floor(Math.random() * (k + 1)); [a[k], a[j]] = [a[j], a[k]]; } return a; };
+
+try {
+  DATA = JSON.parse($("quiz-data").textContent);
+  PER = Math.max(1, +(DATA.settings && DATA.settings.questionsPerGame) || 12);
+  NOPT = Math.min(6, Math.max(3, +(DATA.settings && DATA.settings.optionsPerQuestion) || 5));
+  (DATA.breeds || []).forEach((b, n) => {
+    if (!b.breed || !b.photo) console.warn(`Breed ${n + 1} skipped: missing name or photo.`);
+    else ITEMS.push(b);
+  });
+} catch (e) {
+  console.error(e);
+}
+
+// Photos come straight from Wikimedia Commons. "width" asks Commons for a
+// resized copy, so phones don't download the full-size original.
+const photoSrc = (file, width) => "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(file) + "?width=" + width;
+const photoPage = file => "https://commons.wikimedia.org/wiki/File:" + encodeURIComponent(file.replace(/ /g, "_"));
+
+// Build a question with wrong answers taken from other breeds,
+// preferring the same group so the choices are plausible.
+function makeQuestion(b) {
+  const others = ITEMS.filter(o => o.breed !== b.breed);
+  const same = shuffle(others.filter(o => o.group === b.group).map(o => o.breed));
+  const rest = shuffle(others.filter(o => o.group !== b.group).map(o => o.breed));
+  const wrong = [...new Set([...same, ...rest])].slice(0, NOPT - 1);
+  return { category: b.group ? b.group + " group" : "Dogs", q: "Which breed is this dog?", photo: b.photo,
+           answer: b.breed, options: [b.breed, ...wrong], fact: b.fact };
+}
+
+// ---------- Game ----------
+let round = [], i = 0, score = 0, answers = [], picked = false;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function buzz(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+const total = () => round.length;
+
+function header() {
+  const done = !$("over").hidden;
+  $("scoreBox").innerHTML = done ? `Done · Score <b>${score}</b>`
+    : `Q <b>${Math.min(i + 1, total())}</b>/${total()} · Score <b>${score}</b>`;
+  $("dots").style.gridTemplateColumns = `repeat(${total()},1fr)`;
+  $("dots").innerHTML = round.map((_, k) => {
+    const c = k < answers.length ? (answers[k].ok ? "ok" : "no") : (k === i && !done ? "now" : "");
+    return `<li class="${c}"></li>`;
+  }).join("");
+}
+
+// Show the photo, with a message while it loads or if it fails.
+function setPhoto(x) {
+  const img = $("photo"), msg = $("photoMsg"), at = i;
+  msg.textContent = "Fetching the photo…"; msg.hidden = false;
+  img.onload = () => { if (at === i) msg.hidden = true; };
+  img.onerror = () => { if (at === i) msg.textContent = "This photo wouldn't load. Pick any answer to move on."; };
+  img.src = photoSrc(x.photo, 1200);
+}
+
+function show() {
+  const x = round[i];
+  picked = false;
+  x._order = shuffle(x.options);
+  $("cat").textContent = x.category;
+  setPhoto(x);
+  $("question").textContent = x.q;
+  $("options").innerHTML = x._order.map((o, k) =>
+    `<li><button class="opt" type="button" id="opt-${k}" data-v="${esc(o)}"><span class="key">${KEYS[k]}</span><span class="txt">${esc(o)}</span><span class="res" aria-hidden="true"></span></button></li>`
+  ).join("");
+  $("fact").hidden = true;
+  const b = $("mainBtn"); b.disabled = true; b.textContent = "Pick an answer";
+  $("stage").scrollTop = 0;
+  header();
+}
+
+function choose(value) {
+  if (picked) return;
+  picked = true;
+  const x = round[i], ok = value === x.answer;
+  if (ok) score++;
+  answers.push({ x, value, ok });
+  buzz(ok ? 20 : [30, 40, 30]);
+
+  document.querySelectorAll(".opt").forEach(btn => {
+    const v = btn.dataset.v; btn.disabled = true;
+    if (v === x.answer) { btn.classList.add("correct"); btn.querySelector(".res").textContent = "✓"; }
+    else if (v === value) { btn.classList.add("wrong"); btn.querySelector(".res").textContent = "✗"; }
+    else btn.classList.add("faded");
+  });
+
+  const vd = $("verdict");
+  vd.textContent = ok ? "Correct!" : `Not quite. It's a ${x.answer}.`;
+  vd.className = "verdict " + (ok ? "ok" : "no");
+  $("factText").textContent = x.fact || "";
+  $("factText").hidden = !x.fact;
+  $("credit").href = photoPage(x.photo);
+  $("fact").hidden = false;
+  $("live").textContent = vd.textContent + " " + (x.fact || "");
+
+  const b = $("mainBtn");
+  b.disabled = false;
+  b.textContent = i === total() - 1 ? "See your results →" : "Next question →";
+  b.focus({ preventScroll: true });
+  header();
+  requestAnimationFrame(() => $("fact").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "nearest" }));
+}
+
+function finish() {
+  $("play").hidden = true; $("over").hidden = false;
+  const n = total(), pct = score / n;
+  $("finalScore").textContent = `${score}/${n}`;
+  $("finalMsg").textContent = pct >= .9 ? "Outstanding. Best in show." : pct >= .7 ? "Great result. A true dog lover." : pct >= .5 ? "Solid effort. Have another go." : "A tough set. Every round is different, so try again.";
+  let best = score;
+  try { const key = "dogs-best-" + (DATA.version || "1"); best = Math.max(score, +(localStorage.getItem(key) || 0)); localStorage.setItem(key, best); } catch (e) {}
+  $("best").textContent = `Best score on this device: ${best}/${n}`;
+  $("review").innerHTML = answers.map(a =>
+    `<li><span class="mark ${a.ok ? "ok" : "no"}" aria-label="${a.ok ? "correct" : "wrong"}">${a.ok ? "✓" : "✗"}</span><img class="thumb" src="${esc(photoSrc(a.x.photo, 160))}" alt="Photo of a ${esc(a.x.answer)}">
+     <span class="ans">${a.ok ? `<b>${esc(a.x.answer)}</b>` : `You said ${esc(a.value)} · answer: <b>${esc(a.x.answer)}</b>`}</span></li>`
+  ).join("");
+  const b = $("mainBtn"); b.disabled = false; b.textContent = "Play again ↻"; b.focus({ preventScroll: true });
+  $("stage").scrollTop = 0;
+  header();
+}
+
+function start() {
+  round = shuffle(ITEMS).slice(0, Math.min(PER, ITEMS.length)).map(makeQuestion);
+  i = 0; score = 0; answers = [];
+  $("over").hidden = true; $("play").hidden = false;
+  round.slice(1).forEach(x => { new Image().src = photoSrc(x.photo, 1200); });   // preload the rest of the round
+  show();
+}
+
+$("options").addEventListener("click", e => { const b = e.target.closest(".opt"); if (b) choose(b.dataset.v); });
+$("mainBtn").addEventListener("click", () => {
+  if (!$("over").hidden) start();
+  else if (picked) { if (i < total() - 1) { i++; show(); } else finish(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "A") return;
+  const k = e.key.toUpperCase(), idx = KEYS.indexOf(k);
+  if (!picked && $("over").hidden && idx > -1 && idx < (round[i]?._order.length || 0) && k.length === 1) { e.preventDefault(); choose(round[i]._order[idx]); }
+  else if (e.key === "Enter" && !$("mainBtn").disabled && document.activeElement !== $("mainBtn")) { e.preventDefault(); $("mainBtn").click(); }
+});
+
+if (ITEMS.length >= 5) {
+  $("foot").textContent = `${ITEMS.length} breeds · photos and facts from Wikimedia Commons and Wikipedia · version ${DATA.version || "1"}`;
+  start();
+} else {
+  $("play").innerHTML = `<div class="error">The quiz content couldn't be loaded. Check the quiz-data block for a JSON typo, such as a missing comma or quote.</div>`;
+  $("mainBtn").textContent = "No questions loaded";
+}
+</script>
+</body>
+</html>
